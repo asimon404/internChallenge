@@ -1,0 +1,76 @@
+Question 1:
+a.) The value $3145.13 uses the mean of the order_amounts column to calculate the AOV.
+The mean is not robust against outlying data, such as bulk orders or abnormally expensive shoes.
+As such, outliers will skew the mean toward a value that does not make sense.
+Better ways to evaluate the data would be to exclude outliers, or find the mean of a random sample of sufficiently large size. 
+As well, a different metric other than mean could be used to find the average.
+
+b.) I would report the median of the order_amount column, as it will be more robust to the outliers in this dataset than the mean.
+
+c.) The value of the median of the order_amount column is 284.
+
+
+
+
+Question 2:
+a.) 
+SELECT COUNT(*)
+FROM Orders
+WHERE ShipperID = 1
+
+There were 54 orders shipped by Speedy Express in total.
+
+
+b.)
+SELECT LastName 
+FROM Employees
+WHERE EmployeeID=(SELECT EmployeeID
+			FROM Orders 
+			GROUP BY EmployeeID
+			ORDER BY COUNT(EmployeeID) DESC
+			limit 1);
+
+
+The last name of the employee with the most orders is Peacock
+
+
+c.) I was unsure of the wording of this question, and figured it couldn't hurt to practice querying, so I did this question two ways:
+
+
+The First Way: I found the product that was ordered the most by customers in Germany, with respect to the number of unique orders said product appears in.
+For example, Gorgonzola Telino appears in 5 unique orders.
+
+
+SELECT ProductName
+FROM Products
+WHERE ProductID = (SELECT ProductID
+			FROM OrderDetails
+			WHERE OrderID in (SELECT OrderID
+						FROM Orders
+						WHERE CustomerID in (SELECT CustomerID 
+										FROM Customers 
+										WHERE country = "Germany"))                                   
+			GROUP BY ProductID
+			ORDER BY count(ProductID) DESC
+			limit 1);
+
+In this way, the product that was ordered the most by customers in Germany is Gorgonzola Telino.
+
+
+The Second Way: I found the product that was ordered the most by customers in Germany, with respect to the quantity ordered of said product.
+
+SELECT ProductName
+FROM Products
+WHERE ProductID = (SELECT ProductID
+				FROM OrderDetails
+				WHERE OrderID in (SELECT OrderID
+							FROM Orders
+							WHERE CustomerID in (SELECT CustomerID 
+											FROM Customers 
+											where country = "Germany"))                                 
+				GROUP BY ProductID
+				ORDER BY SUM(Quantity) DESC
+				LIMIT 1);
+
+
+In this way, the product that was ordered the most by customers in Germany is Boston Crab Meat.
